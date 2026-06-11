@@ -1,6 +1,7 @@
 <?php
 //Carrega o controller responsável pelos endpoints de usuários.
 require_once __DIR__ . '/app/Controllers/UsuariosController.php';
+require_once __DIR__ . '/app/Controllers/PessoasController.php';
 
 // Define o controller e action por query string.
 // Ex: ?controller=usuarios&action=listar
@@ -38,6 +39,31 @@ if ($controller === 'usuarios') {
             echo 'Ação de usuários não encontrada.';
             break;
     }
+} elseif ($controller === 'pessoas') {
+    $pessoasController = new PessoasController();
+
+    switch ($action) {
+        case 'listar':
+            $pessoasController->listar();
+            break;
+        case 'buscar':
+            $pessoasController->buscarPorId();
+            break;
+        case 'cadastrar':
+            $pessoasController->cadastrar();
+            break;
+        case 'atualizar':
+            $pessoasController->atualizar();
+            break;
+        case 'excluir':
+            $pessoasController->excluir();
+            break;
+        default:
+            // Retorno padrão para action invalido
+            echo 'Ação não encontrada.';
+            break;
+    }
+
 } else {
     // Resposta básica para indicar que a aplicação está no ar.
     echo '<h1>AtendeLabb</h1>';
