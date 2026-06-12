@@ -14,11 +14,21 @@ class UsuariosController
         $this->pdo = $pdo;
     }
 
-    public function listar(): void
+
+    // Centraliza as chamadas em Json abstraindo e tornando o codigo mais limpo
+    public function jsonResponse(mixed $data, int $status = 200): void
     {
         // Define saída em JSON para APIs/consumo por fron-end.
         header('Content-Type: application/json; charset=utf-8');
+        // Status Code que sera retornado
+        http_response_code($status);
+        // JSON_PRETTY_PRINT melhora leitura em desenvolvimento
+        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
+    public function listar(): void
+    {
         // Consulta todos os usuários com ordenação decrescente por ID
         $sql = 'SELECT id, nome, email, perfil, status, criado_em
                 FROM usuarios
@@ -27,22 +37,17 @@ class UsuariosController
         $stmt = $this->pdo->query($sql);
         $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // JSON_PRETTY_PRINT melhora leitura em desenvolvimento
-        echo json_encode($usuarios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+        $this->jsonResponse($usuarios);
     }
 
     public function buscarPorId(): void
     {
-        // Define saída em JSON para APIs/consumo por fron-end.
-        header('Content-Type: application/json; charset=utf-8');
-
         // Lê e valida o ID recebido por GET.
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'ID invalido']);
-            return;
+            $this->jsonResponse(['erro' => 'ID invalido'], 400);
         }
 
         // Consulta parametrizada evita SQL injection
@@ -57,9 +62,7 @@ class UsuariosController
         $usuarios = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$usuarios) {
-            http_response_code(404);
-            echo json_encode(['erro' => 'Usuário não encontrado.']);
-            return;
+            $this->jsonResponse(['erro' => 'Usuário não encontrado.'], 404);
         }
 
         echo json_encode($usuarios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -79,28 +82,20 @@ class UsuariosController
 
         // Regras minimas de validacção de entrada
         if ($nome === '' || $email === '' || $senha === '') {
-            http_response_code(400);
-            echo json_encode(['erro' => 'Nome, e-mail e senha são obrigatorios.']);
-            return;
+            $this->jsonResponse(['erro' => 'Nome, e-mail e senha são obrigatorios.'], 400);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'E-mail invalido.']);
-            return;
+            $this->jsonResponse(['erro' => 'E-mail invalido.'], 400);
         }
 
         //Whitelist de valores válidos para campo de domínio
         if (!in_array($perfil, ['admin', 'aluno', 'atendente'], true)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'Perfil inválido.']);
-            return;
+            $this->jsonResponse(['erro' => 'Perfil inválido.'], 400);
         }
 
         if (!in_array($status, ['ativo', 'inativo'], true)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'Status Invalido']);
-            return;
+            $this->jsonResponse(['erro' => 'Status Invalido'], 400);
         }
 
         // Nunca armazenar senha em texto puro
@@ -118,19 +113,14 @@ class UsuariosController
             $stmt->bindValue(':status', $status);
             $stmt->execute();
 
-            http_response_code(201);
-            echo json_encode(['mensagem' => 'Usuário cadastrado com sucesso', 'id' => $this->pdo->lastInsertId()], JSON_UNESCAPED_UNICODE);
+            $this->jsonResponse(['mensagem' => 'Usuário cadastrado com sucesso', 'id' => $this->pdo->lastInsertId()], 201);
         } catch (PDOException $e) {
             // Em produção, registre $e em log em vez de expor detalhes.
-            http_response_code(500);
-            echo json_encode(['erro' => 'Erro ao cadastrar usuário']);
+            $this->jsonResponse(['erro' => 'Erro ao cadastrar usuário'], 500);
         }
     }
     public function atualizar(): void
     {
-        // Define saída em JSON para APIs/consumo por fron-end.
-        header('Content-Type: application/json; charset=utf-8');
-
         // ID vem no POST para operação de update.
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $nome = trim($_POST['nome'] ?? '');
@@ -139,25 +129,18 @@ class UsuariosController
         $status = $_POST['status'] ?? 'ativo';
 
         if (!$id || $nome === '' || $email === '') {
-            http_response_code(400);
-            echo json_encode(['erro' => 'ID, nome e e-mail são obrigatorios']);
-            return;
+            $this->jsonResponse(['erro' => 'ID, nome e e-mail são obrigatorios'], 400);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'E-mail invalido']);
-            return;
+            $this->jsonResponse(['erro' => 'E-mail invalido'], 400);
+
         }
         if (!in_array($perfil, ['admin', 'aluno', 'atendente'], true)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'Perfil inválido.']);
-            return;
+            $this->jsonResponse(['erro' => 'Perfil inválido.'], 400);
         }
         if (!in_array($status, ['ativo', 'inativo'], true)) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'Status invalido']);
-            return;
+            $this->jsonResponse(['erro' => 'Status invalido'], 400);
         }
 
         try {
@@ -176,25 +159,19 @@ class UsuariosController
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
-            echo json_encode(['mensagem' => 'Usuário atualizado com sucesso'], JSON_UNESCAPED_UNICODE);
+            $this->jsonResponse(['mensagem' => 'Usuário atualizado com sucesso']);
 
         } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['erro' => 'Erro ao atualizar usuário']);
+            $this->jsonResponse(['erro' => 'Erro ao atualizar usuário'], 500);
         }
     }
 
     public function excluir(): void
     {
-        // Define saída em JSON para APIs/consumo por fron-end.
-        header('Content-Type: application/json; charset=utf-8');
-
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'ID inválido']);
-            return;
+            $this->jsonResponse(['erro' => 'ID inválido'], 400);
         }
 
         try {
@@ -203,12 +180,9 @@ class UsuariosController
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
-            echo json_encode(['mensagem' => 'Usuário excluido com sucesso'], JSON_UNESCAPED_UNICODE);
+            $this->jsonResponse(['mensagem' => 'Usuário excluido com sucesso']);
         } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['erro' => 'Erro ao deletar usuario']);
+            $this->jsonResponse(['erro' => 'Erro ao deletar usuario'], 500);
         }
     }
-
-
 }

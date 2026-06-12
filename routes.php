@@ -2,6 +2,7 @@
 //Carrega o controller responsável pelos endpoints de usuários.
 require_once __DIR__ . '/app/Controllers/UsuariosController.php';
 require_once __DIR__ . '/app/Controllers/PessoasController.php';
+require_once __DIR__ . '/app/Controllers/TiposAtendimentos.php';
 
 // Define o controller e action por query string.
 // Ex: ?controller=usuarios&action=listar
@@ -37,6 +38,27 @@ if ($controller === 'usuarios') {
         default:
             // Retorno padrão para action invalido
             echo 'Ação de usuários não encontrada.';
+            break;
+    }
+} elseif ($controller === 'tiposatendimentos') {
+    $tiposAtendimentos = new TiposAtendimentos();
+
+    switch ($action) {
+        case 'criarTipoAtendimento':
+            $tiposAtendimentos->criarTipoAtendimento();
+            break;
+        case 'buscarAtendimento':
+            $tiposAtendimentos->buscarAtendimento();
+            break;
+        case 'atualizarAtendimento':
+            $tiposAtendimentos->atualizarAtendimento();
+            break;
+        case 'excluirAtendimento':
+            $tiposAtendimentos->excluirAtendimento();
+            break;
+        default:
+            // Retorno padrão para action invalido
+            echo 'Ação não encontrada.';
             break;
     }
 } elseif ($controller === 'pessoas') {
