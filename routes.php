@@ -1,6 +1,7 @@
 <?php
 //Carrega o controller responsável pelos endpoints de usuários.
 require_once __DIR__ . '/app/Controllers/UsuariosController.php';
+require_once __DIR__ . '/app/Controllers/AtendimentosController.php';
 require_once __DIR__ . '/app/Controllers/PessoasController.php';
 require_once __DIR__ . '/app/Controllers/TiposAtendimentos.php';
 
@@ -47,6 +48,9 @@ if ($controller === 'usuarios') {
         case 'criarTipoAtendimento':
             $tiposAtendimentos->criarTipoAtendimento();
             break;
+        case 'listarTipoAtendimento':
+            $tiposAtendimentos->listarTipoAtendimento();
+            break;
         case 'buscarAtendimento':
             $tiposAtendimentos->buscarAtendimento();
             break;
@@ -79,6 +83,30 @@ if ($controller === 'usuarios') {
             break;
         case 'excluir':
             $pessoasController->excluir();
+            break;
+        default:
+            // Retorno padrão para action invalido
+            echo 'Ação não encontrada.';
+            break;
+    }
+} elseif ($controller === 'atendimentos') {
+    $atendimentosController = new AtendimentosController();
+
+    switch ($action) {
+        case 'listarAtendimentos':
+            $atendimentosController->listarAtendimentos();
+            break;
+        case 'buscarAtendimento':
+            $atendimentosController->buscarAtendimento();
+            break;
+        case 'criarNovoAtendimento':
+            $atendimentosController->criarNovoAtendimento();
+            break;
+        case 'atualizarAtendimento':
+            $atendimentosController->atualizarAtendimento();
+            break;
+        case 'excluirAtendimento':
+            $atendimentosController->excluirAtendimento();
             break;
         default:
             // Retorno padrão para action invalido
