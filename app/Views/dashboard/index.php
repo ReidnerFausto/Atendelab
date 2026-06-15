@@ -14,7 +14,7 @@
         <div class="container">
             <span class="navbar-brand">Atendelab</span>
 
-            <a class="btn btn-outline-light btn-sm" href="?controller=auth&action=logout">
+            <a class="btn btn-outline-danger btn-sm" href="?controller=auth&action=logout">
                 Sair
             </a>
         </div>
@@ -26,10 +26,12 @@
                 <h1 class="h4">Área restrita</h1>
 
                 <p class="mb-1">
-                    Bem Vindo, <strong><?= htmlspecialchars($usuario['nome'], ENT_QUOTES, 'UTF-8') ?> </strong>,
+                    Bem Vindo, <strong><?= htmlspecialchars($usuario['nome'], ENT_QUOTES, 'UTF-8') ?> </strong>.
                 </p>
 
-                <p class="text-muted">Perfil> <?= htmlspecialchars($usuario['perfil'], ENT_QUOTES, 'UTF-8') ?> </p>
+                <p class="text-muted">Perfil:
+                    <strong><?= htmlspecialchars($usuario['perfil'], ENT_QUOTES, 'UTF-8') ?> </strong>
+                </p>
 
                 <a class="btn btn-primary" href="?controller=usuarios&action=listar">Testar rota protegida por
                     usuario</a>

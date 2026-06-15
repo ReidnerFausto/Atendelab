@@ -17,7 +17,7 @@ Dessa forma, o sistema devera ser capaz de entregar uma solução organizada e a
 
 ## Tecnologias utilizadas
 
-- PHP 8.x
+- PHP
 - MySQL
 - phpMyAdmin
 - HTML
@@ -43,3 +43,11 @@ Dessa forma, o sistema devera ser capaz de entregar uma solução organizada e a
 4. Criar o banco atendelab.
 5. Importar o script database/atendelab.sql.
 6. Acessar http://localhost/atendelab/public/
+
+## Como efetuar o login/logout corretamente
+
+1. Com o xampp devidamente configurado acesse http://localhost/atendelab/public/.
+2. Utilize suas credenciais ja cadastradas no sistema.
+3. Aperte o botao `Entrar` e apos isso voce será redirecionado para o dashboard.
+4. Voce podera acessar as funções presentes no dashboard.
+5. Após efetue o logout clicando no botão `Sair` para encerrar a sessão.

@@ -15,8 +15,8 @@
             <div class="col-md-6 col-lg-5">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <h1 class="h4 mb-2">Atendelab</h1>
-                        <p class="text-muted">Inform suas credenciais para acessar o sistema</p>
+                        <h1 class="h4 mb-2 text-center">Atendelab</h1>
+                        <p class="text-muted text-center">Informe suas credenciais para acessar o sistema</p>
                         <?php if (!empty($erro)): ?>
                             <div class="alert alert-danger">
                                 <?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?>
@@ -34,14 +34,16 @@
                                     E-mail
                                 </label>
 
-                                <input type="email" name="email" id="email" class="form-control" required>
+                                <input type="email" name="email" id="email" class="form-control"
+                                    placeholder="exemplo@email.com" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="senha" class="form-label">
                                     Senha
                                 </label>
-                                <input type="password" name="senha" id="senha" class="form-control" required>
+                                <input type="password" name="senha" id="senha" class="form-control"
+                                    placeholder="**********" required>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">
