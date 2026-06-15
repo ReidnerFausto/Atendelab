@@ -1,10 +1,10 @@
 <?php
 
 // Importa a conexão com o banco de dados
-require_once __DIR__ . "../../config/database.php";
+require_once __DIR__ . "/../../config/database.php";
 
 // Importa funções auxiliares de autenticação e sessão
-require_once __DIR__ . "../Middleware/auth.php";
+require_once __DIR__ . "/../Middleware/auth.php";
 
 class AuthController
 {
@@ -36,7 +36,7 @@ class AuthController
         unset($_SESSION['erro_login'], $_SESSION['mensagem']);
 
         // Carrega a tela de login
-        require __DIR__ . '../Views/auth/login.php';
+        require __DIR__ . '/../Views/auth/login.php';
     }
 
     public function entrar(): void
@@ -92,6 +92,22 @@ class AuthController
             header('Location: ?controller=auth&action=login');
             exit;
         }
+
+        // Gera um novo ID de sessão por seguranca
+        session_regenerate_id(true);
+
+        // Salva na sessão apenas os dados necessários do usuário
+        $_SESSION['usuario'] = [
+            'id' => $usuario['id'],
+            'nome' => $usuario['nome'],
+            'email' => $usuario['email'],
+            'perfil' => $usuario['perfil'],
+        ];
+
+
+        // Redireciona para o dashboard
+        header('Location: ?controller=auth&action=dashboard');
+        exit;
     }
 
     public function dashboard(): void
@@ -103,7 +119,7 @@ class AuthController
         $usuario = usuarioAtual();
 
         // Carrega a página interna
-        require __DIR__ . '../Views/dashboard/index.php';
+        require __DIR__ . '/../Views/dashboard/index.php';
     }
 
     public function logout(): void

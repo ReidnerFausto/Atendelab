@@ -9,10 +9,9 @@ require_once __DIR__ . '/app/Middleware/auth.php';
 
 // Define o controller e action por query string.
 // Ex: ?controller=usuarios&action=listar
-$controller = $_GET['controller'] ?? 'home';
-$action = $_GET['action'] ?? 'index';
+$controller = $_GET['controller'] ?? 'auth';
+$action = $_GET['action'] ?? 'login';
 
-// Este roteador é simples: só reconhece o controller "usuarios.
 switch ($controller) {
     case 'auth':
         $authController = new AuthController();
@@ -34,6 +33,7 @@ switch ($controller) {
 
             default:
                 // Retorno padrão para action invalido
+                http_response_code(404);
                 echo 'Ação de Autenticação não encontrada.';
                 break;
         }
@@ -61,6 +61,7 @@ switch ($controller) {
                 break;
             default:
                 // Retorno padrão para action invalido
+                http_response_code(404);
                 echo 'Ação de usuários não encontrada.';
                 break;
         }
@@ -87,6 +88,7 @@ switch ($controller) {
                 break;
             default:
                 // Retorno padrão para action invalido
+                http_response_code(404);
                 echo 'Ação não encontrada.';
                 break;
         }
@@ -113,6 +115,7 @@ switch ($controller) {
                 break;
             default:
                 // Retorno padrão para action invalido
+                http_response_code(404);
                 echo 'Ação não encontrada.';
                 break;
         }
@@ -139,14 +142,14 @@ switch ($controller) {
                 break;
             default:
                 // Retorno padrão para action invalido
+                http_response_code(404);
                 echo 'Ação não encontrada.';
                 break;
         }
         break;
 
     default:
-        // Resposta básica para indicar que a aplicação está no ar.
-        echo '<h1>AtendeLabb</h1>';
-        echo '<p>Projeto em execução, Use ?controller=usuarios&action=listar para testar</p>';
+        http_response_code(404);
+        echo 'Controller não encontrado.';
         break;
 }
