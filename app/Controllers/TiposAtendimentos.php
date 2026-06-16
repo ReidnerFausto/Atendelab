@@ -2,6 +2,9 @@
 // Controler da entidade de TipoAtendimento
 // Sera responsavel pela criacao dos diferentes tipos de atendimentos
 
+// Importa funções auxiliares de autenticação e sessão
+require_once __DIR__ . "/../Middleware/auth.php";
+
 class TiposAtendimentos
 {
     private PDO $pdo;
@@ -27,7 +30,10 @@ class TiposAtendimentos
 
     public function listarTipoAtendimento(): void
     {
-        $sql = 'SELECT id, nome, descricao, status
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $sql = 'SELECT id, nome, descricao, status, atualizado_em
                 FROM tipos_atendimentos
                 ORDER BY id DESC';
 
@@ -39,6 +45,9 @@ class TiposAtendimentos
 
     public function buscarAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
@@ -63,6 +72,9 @@ class TiposAtendimentos
 
     public function criarTipoAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $nome = trim($_POST['nome'] ?? '');
         $descricao = trim($_POST['descricao'] ?? '');
         $status = $_POST['status'] ?? 'ativo';
@@ -90,6 +102,9 @@ class TiposAtendimentos
 
     public function atualizarAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $nome = trim($_POST['nome'] ?? '');
         $descricao = trim($_POST['descricao'] ?? '');
@@ -124,6 +139,9 @@ class TiposAtendimentos
 
     public function excluirAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {

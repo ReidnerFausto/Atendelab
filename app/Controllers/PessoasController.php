@@ -2,6 +2,9 @@
 // Controler da entidade de pessoas
 // Sera responsavel pelo cadastro e acompanhamento das pessoas atendidadas
 
+// Importa funções auxiliares de autenticação e sessão
+require_once __DIR__ . "/../Middleware/auth.php";
+
 class PessoasController
 {
     private PDO $pdo;
@@ -29,8 +32,11 @@ class PessoasController
 
     public function listar(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // Consulta todos as pessoas com ordenação decrescente por ID
-        $sql = 'SELECT id, nome, documento, telefone, curso, periodo, status
+        $sql = 'SELECT id, nome, documento, telefone, curso, periodo, status, atualizado_em
                 FROM pessoas
                 ORDER BY id DESC';
 
@@ -42,13 +48,16 @@ class PessoasController
     }
     public function buscarPorId(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
             $this->jsonResponse(['erro' => 'ID invalido'], 400);
         }
 
-        $sql = 'SELECT id, nome, documento, telefone, curso, periodo, status
+        $sql = 'SELECT id, nome, documento, telefone, curso, periodo, status, atualizado_em
                 FROM pessoas
                 WHERE id = :id';
 
@@ -66,6 +75,9 @@ class PessoasController
 
     public function cadastrar(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $nome = trim($_POST['nome'] ?? '');
         $documento = trim($_POST['documento'] ?? '');
         $telefone = trim($_POST['telefone'] ?? '');
@@ -104,6 +116,9 @@ class PessoasController
     }
     public function atualizar(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // ID vem no POST para operação de update.
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $nome = trim($_POST['nome'] ?? '');
@@ -111,13 +126,9 @@ class PessoasController
         $telefone = trim($_POST['telefone'] ?? '');
         $curso = trim($_POST['curso'] ?? '');
         $periodo = trim($_POST['periodo'] ?? '');
-        $status = $_POST['status'] ?? 'ativo';
 
         if (!$id || $nome === '' || $documento === '') {
             $this->jsonResponse(['erro' => 'ID, nome e documento são obrigatorios.'], 400);
-        }
-        if (!in_array($status, ['ativo', 'inativo'], true)) {
-            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
         }
 
         try {
@@ -127,7 +138,6 @@ class PessoasController
                         telefone = :telefone,
                         curso = :curso,
                         periodo = :periodo,
-                        status = :status
                     WHERE id = :id';
 
             $stmt = $this->pdo->prepare($sql);
@@ -136,7 +146,6 @@ class PessoasController
             $stmt->bindValue(':telefone', $telefone);
             $stmt->bindValue(':curso', $curso);
             $stmt->bindValue(':periodo', $periodo);
-            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
@@ -147,8 +156,45 @@ class PessoasController
         }
 
     }
+
+    public function alterarStatus(): void
+    {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $status = $_POST['status'] ?? 'ativo';
+
+        if (!$id) {
+            $this->jsonResponse(['erro' => 'ID valido é obrigatorio.'], 400);
+        }
+        if (!in_array($status, ['ativo', 'inativo'], true)) {
+            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
+        }
+
+        try {
+            $sql = 'UPDATE pessoas
+                    SET status = :status
+                    WHERE id = :id';
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $this->jsonResponse(['mensagem' => 'Status atualizado com sucesso']);
+
+        } catch (PDOException $e) {
+            $this->jsonResponse(['erro' => 'Erro ao atualizar status'], 500);
+        }
+
+    }
+
     public function excluir(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {

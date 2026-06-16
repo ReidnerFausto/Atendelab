@@ -19,6 +19,20 @@ function exigirAutenticacao(): void
     }
 }
 
+// Precisa criar essa funcao caso contrario fica retornando para o html no postman
+function exigirAutenticacaoApi(): void
+{
+    // Se o usuário não estiver logado, encerra e devolve um erro JSON 401
+    if (!usuarioAutenticado()) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(401); // Unauthorized
+        echo json_encode([
+            'erro' => 'Acesso negado. Autenticação necessária.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
 function usuarioAtual(): ?array
 {
     return $_SESSION['usuario'] ?? null;

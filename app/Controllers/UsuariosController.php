@@ -2,6 +2,9 @@
 // Controller da entidade de usuários.
 // Em uma arquitetura MVC, ele recebe a requisição, valida e acessa o banco.
 
+// Importa funções auxiliares de autenticação e sessão
+require_once __DIR__ . "/../Middleware/auth.php";
+
 class UsuariosController
 {
     // Conexão PDO reutilizada em todos os métodos.
@@ -29,8 +32,11 @@ class UsuariosController
 
     public function listar(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // Consulta todos os usuários com ordenação decrescente por ID
-        $sql = 'SELECT id, nome, email, perfil, status, criado_em
+        $sql = 'SELECT id, nome, email, perfil, status, criado_em, atualizado_em
                 FROM usuarios
                 ORDER BY id DESC';
 
@@ -43,6 +49,9 @@ class UsuariosController
 
     public function buscarPorId(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // Lê e valida o ID recebido por GET.
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
@@ -51,7 +60,7 @@ class UsuariosController
         }
 
         // Consulta parametrizada evita SQL injection
-        $sql = 'SELECT id, nome, email, perfil, status, criado_em
+        $sql = 'SELECT id, nome, email, perfil, status, criado_em, atualizado_em
                 FROM usuarios
                 WHERE id = :id';
 
@@ -70,8 +79,8 @@ class UsuariosController
     }
     public function criar(): void
     {
-        // Define saída em JSON para APIs/consumo por fron-end.
-        header('Content-Type: application/json; charset=utf-8');
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
 
         // Coleta dados do formulario (POST)
         $nome = trim($_POST['nome'] ?? '');
@@ -90,7 +99,7 @@ class UsuariosController
         }
 
         //Whitelist de valores válidos para campo de domínio
-        if (!in_array($perfil, ['admin', 'aluno', 'atendente'], true)) {
+        if (!in_array($perfil, ['admin', 'atendente'], true)) {
             $this->jsonResponse(['erro' => 'Perfil inválido.'], 400);
         }
 
@@ -121,12 +130,14 @@ class UsuariosController
     }
     public function atualizar(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // ID vem no POST para operação de update.
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $nome = trim($_POST['nome'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $perfil = $_POST['perfil'] ?? 'atendente';
-        $status = $_POST['status'] ?? 'ativo';
 
         if (!$id || $nome === '' || $email === '') {
             $this->jsonResponse(['erro' => 'ID, nome e e-mail são obrigatorios'], 400);
@@ -136,26 +147,21 @@ class UsuariosController
             $this->jsonResponse(['erro' => 'E-mail invalido'], 400);
 
         }
-        if (!in_array($perfil, ['admin', 'aluno', 'atendente'], true)) {
+        if (!in_array($perfil, ['admin', 'atendente'], true)) {
             $this->jsonResponse(['erro' => 'Perfil inválido.'], 400);
-        }
-        if (!in_array($status, ['ativo', 'inativo'], true)) {
-            $this->jsonResponse(['erro' => 'Status invalido'], 400);
         }
 
         try {
             $sql = 'UPDATE usuarios
                     SET nome = :nome,
                         email = :email,
-                        perfil = :perfil,
-                        status = :status
+                        perfil = :perfil
                     WHERE id = :id';
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
             $stmt->bindValue(':email', $email);
             $stmt->bindValue(':perfil', $perfil);
-            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
@@ -166,8 +172,44 @@ class UsuariosController
         }
     }
 
+    public function alterarStatus(): void
+    {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $status = $_POST['status'] ?? 'ativo';
+
+        if (!$id) {
+            $this->jsonResponse(['erro' => 'ID valido é obrigatorio.'], 400);
+        }
+        if (!in_array($status, ['ativo', 'inativo'], true)) {
+            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
+        }
+
+        try {
+            $sql = 'UPDATE usuarios
+                    SET status = :status
+                    WHERE id = :id';
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $this->jsonResponse(['mensagem' => 'Status atualizado com sucesso']);
+
+        } catch (PDOException $e) {
+            $this->jsonResponse(['erro' => 'Erro ao atualizar status'], 500);
+        }
+
+    }
+
     public function excluir(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {

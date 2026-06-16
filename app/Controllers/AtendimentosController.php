@@ -1,6 +1,8 @@
 <?php
 // Controler da entidade de Atendimentos
 // Sera responsavel pela criacao e agendamento de novos atendimentos
+// Importa funções auxiliares de autenticação e sessão
+require_once __DIR__ . "/../Middleware/auth.php";
 
 class AtendimentosController
 {
@@ -28,7 +30,10 @@ class AtendimentosController
 
     public function listarAtendimentos(): void
     {
-        $sql = 'SELECT a.id, a.data_atendimento, a.hora_atendimento, a.descricao, a.observacao, a.status, a.criado_em, p.nome AS pessoa_nome, u.nome AS usuario_id, t.nome AS tipo_atendimento 
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $sql = 'SELECT a.id, p.nome AS pessoa_nome, u.nome AS usuario_id, t.nome AS tipo_atendimento, a.data_atendimento, a.hora_atendimento, a.descricao, a.observacao, a.status, a.criado_em, a.atualizado_em 
                 FROM atendimentos a
                 INNER JOIN pessoas p ON a.pessoa_id = p.id
                 INNER JOIN usuarios u ON a.usuario_id = u.id
@@ -43,13 +48,16 @@ class AtendimentosController
 
     public function buscarAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {
             $this->jsonResponse(['erro' => 'ID invalido'], 400);
         }
 
-        $sql = 'SELECT id, pessoa_id, usuario_id, data_atendimento, hora_atendimento,   descricao, observacao, status, criado_em
+        $sql = 'SELECT id, pessoa_id, usuario_id, data_atendimento, hora_atendimento,   descricao, observacao, status, criado_em, atualizado_em
                 FROM atendimentos
                 WHERE id = :id';
 
@@ -67,6 +75,9 @@ class AtendimentosController
 
     public function criarNovoAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         // Forca o valor a ser int caso seja texto ou valores invalidos retorna false
         $pessoa_id = filter_input(INPUT_POST, 'pessoa_id', FILTER_VALIDATE_INT);
         $tipo_atendimento = filter_input(INPUT_POST, 'tipo_atendimento', FILTER_VALIDATE_INT);
@@ -77,12 +88,16 @@ class AtendimentosController
         $hora_atendimento = trim($_POST['hora_atendimento'] ?? '');
         $descricao = trim($_POST['descricao'] ?? '');
         $observacao = trim($_POST['observacao'] ?? '');
-        $status = $_POST['status'] ?? 'ativo';
+        $status = $_POST['status'] ?? 'aberto';
 
         if (!$pessoa_id || !$tipo_atendimento || !$usuario_id || $data_atendimento === '') {
             $this->jsonResponse([
                 'erro' => 'Os campos pessoa, tipo de atendimento, usuario e data de atendimento são obrigatórios.'
             ], 400);
+        }
+
+        if (!in_array($status, ['aberto', 'em_andamento', 'concluido'], true)) {
+            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
         }
         try {
             $sql = 'INSERT INTO atendimentos (pessoa_id, tipo_atendimento, usuario_id, data_atendimento, hora_atendimento, descricao, observacao, status)
@@ -108,22 +123,22 @@ class AtendimentosController
 
     public function atualizarAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        // ID vem no POST para operação de update.
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $pessoa_id = filter_input(INPUT_POST, 'pessoa_id', FILTER_VALIDATE_INT);
         $tipo_atendimento = filter_input(INPUT_POST, 'tipo_atendimento', FILTER_VALIDATE_INT);
         $usuario_id = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
         $data_atendimento = trim($_POST['data_atendimento'] ?? '');
         $hora_atendimento = trim($_POST['hora_atendimento'] ?? '');
-        $descricao = trim($_POST['descricao'] ?? '');
-        $observacao = trim($_POST['observacao'] ?? '');
-        $status = $_POST['status'] ?? 'ativo';
+        $descricao = $_POST['descricao'] ?? '';
 
         if (!$id || $pessoa_id === false || $usuario_id === false) {
             $this->jsonResponse(['erro' => 'ID do atendimento, ID de pessoa e ID de usuário são obrigatorios.'], 400);
         }
-        if (!in_array($status, ['ativo', 'inativo'], true)) {
-            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
-        }
+
 
         try {
             $sql = 'UPDATE atendimentos
@@ -133,8 +148,7 @@ class AtendimentosController
                         data_atendimento = :data_atendimento,
                         hora_atendimento = :hora_atendimento,
                         descricao = :descricao,
-                        observacao = :observacao,
-                        status = :status
+
                     WHERE id = :id';
 
             $stmt = $this->pdo->prepare($sql);
@@ -144,8 +158,6 @@ class AtendimentosController
             $stmt->bindValue(':data_atendimento', $data_atendimento);
             $stmt->bindValue(':hora_atendimento', $hora_atendimento);
             $stmt->bindValue(':descricao', $descricao);
-            $stmt->bindValue(':observacao', $observacao);
-            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT); // Precisa bindar o ID
             $stmt->execute();
 
@@ -158,8 +170,61 @@ class AtendimentosController
         }
     }
 
+    public function alterarStatus(): void
+    {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $status = $_POST['status'] ?? 'aberto';
+        $observacao = $_POST['observacao'] ?? '';
+
+        if (!$id) {
+            $this->jsonResponse(['erro' => 'ID valido é obrigatorio.'], 400);
+        }
+        if (!in_array($status, ['aberto', 'em_andamento', 'concluido'], true)) {
+            $this->jsonResponse(['erro' => 'Status invalido.'], 400);
+        }
+        if ($observacao !== '' && $status !== 'concluido') {
+            $this->jsonResponse(['erro' => 'A observação final só pode ser registrada ao concluir o atendimento.'], 400);
+            return;
+        }
+
+        try {
+            if ($status === 'concluido') {
+                $sql = 'UPDATE atendimentos
+                    SET status = :status,
+                        observacao = :observacao
+                    WHERE id = :id';
+            } else {
+                $sql = 'UPDATE atendimentos
+                    SET status = :status
+                    WHERE id = :id';
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            if ($status === 'concluido') {
+                $stmt->bindValue(':observacao', $observacao);
+            }
+
+            $stmt->execute();
+
+            $this->jsonResponse(['mensagem' => 'Status atualizado com sucesso']);
+
+        } catch (PDOException $e) {
+            $this->jsonResponse(['erro' => 'Erro ao atualizar status'], 500);
+        }
+
+    }
+
     public function excluirAtendimento(): void
     {
+        //Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 
         if (!$id) {

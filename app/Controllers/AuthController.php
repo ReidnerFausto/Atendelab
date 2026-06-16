@@ -145,6 +145,7 @@ class AuthController
         // Encerra a sessão atual
         session_destroy();
 
+
         // Inicia nova sessão apenas para enviar a mensagem de retorno
         session_start();
 

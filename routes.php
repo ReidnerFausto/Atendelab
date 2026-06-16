@@ -56,6 +56,9 @@ switch ($controller) {
             case 'atualizar':
                 $usuariosController->atualizar();
                 break;
+            case 'alterarStatus':
+                $usuariosController->alterarStatus();
+                break;
             case 'excluir':
                 $usuariosController->excluir();
                 break;
@@ -110,6 +113,9 @@ switch ($controller) {
             case 'atualizar':
                 $pessoasController->atualizar();
                 break;
+            case 'alterarStatus':
+                $pessoasController->alterarStatus();
+                break;
             case 'excluir':
                 $pessoasController->excluir();
                 break;
@@ -136,6 +142,9 @@ switch ($controller) {
                 break;
             case 'atualizarAtendimento':
                 $atendimentosController->atualizarAtendimento();
+                break;
+            case 'alterarStatus':
+                $atendimentosController->alterarStatus();
                 break;
             case 'excluirAtendimento':
                 $atendimentosController->excluirAtendimento();
