@@ -59,7 +59,7 @@ $perfilUsuario = htmlspecialchars((string) ($usuarioLogado['perfil'] ?? ''), ENT
                 </div>
             </div>
 
-            <a class="btn btn-outline-danger btn-sm" href="<?= $baseUrl ?>?controller=auth&action=logout ">
+            <a class="btn btn-outline-danger btn-sm ms-3" href="<?= $baseUrl ?>?controller=auth&action=logout ">
                 Sair
             </a>
         </div>
