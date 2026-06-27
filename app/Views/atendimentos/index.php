@@ -20,16 +20,18 @@ require __DIR__ . '/../layout/header.php';
         <h2 class="h5">Novo atendimento</h2>
 
         <form id="formAtendimento">
-            <div class="row g-3">
+            <input type="hidden" name="usuario_id"
+                value="<?= htmlspecialchars((string) ($usuarioLogado['id'] ?? 1), ENT_QUOTES, 'UTF-8') ?>">
 
+            <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Pessoa</label>
                     <select class="form-select" name="pessoa_id" id="pessoaSelect" required></select>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-select">Tipo</label>
-                    <select class="form-select" name="tipo_atendimento_id" id="tipoSelect" required></select>
+                    <label class="form-label">Tipo</label>
+                    <select class="form-select" name="tipo_atendimento" id="tipoSelect" required></select>
                 </div>
 
                 <div class="col-md-4">
@@ -39,21 +41,16 @@ require __DIR__ . '/../layout/header.php';
 
                 <div class="col-md-4">
                     <label class="form-label">Horário</label>
-                    <input class="form-control" type="time" name="horario_atendimento" required>
+                    <input class="form-control" type="time" name="hora_atendimento" required>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Descricao</label>
+                <div class="col-md-12"> <label class="form-label">Descrição</label>
                     <textarea class="form-control" name="descricao" rows="3" required></textarea>
                 </div>
-
             </div>
 
             <div class="d-flex gap-2 mt-3">
-                <button class="btn btn-success" type="submit">
-                    Registrar
-                </button>
-
+                <button class="btn btn-success" type="submit">Registrar</button>
                 <button class="btn btn-outline-secondary" type="button" onclick="fecharFormulario()">Cancelar</button>
             </div>
         </form>
@@ -162,7 +159,7 @@ require __DIR__ . '/../layout/header.php';
     async function carregarCombos() {
         const [pessoasResp, tiposResp] = await Promise.all([
             AtendeLabApi.get('pessoas', 'listar'),
-            AtendeLabApi.get('tipos', 'listar')
+            AtendeLabApi.get('tiposatendimentos', 'listarTipoAtendimento')
         ]);
 
         const pessoas = AtendeLabApi.toList(pessoasResp).filter(pessoa => pessoa.status !== 'inativo');
@@ -176,7 +173,7 @@ require __DIR__ . '/../layout/header.php';
 
     async function carregarAtendimentos() {
         try {
-            const resposta = await AtendeLabApi.get('atendimentos', 'listar');
+            const resposta = await AtendeLabApi.get('atendimentos', 'listarAtendimentos');
             const atendimentos = AtendeLabApi.toList(resposta);
             const tbody = document.getElementById('tabelaAtendimentos');
 
@@ -254,7 +251,7 @@ require __DIR__ . '/../layout/header.php';
         event.preventDefault();
 
         try {
-            await AtendeLabApi.post('atendimentos', 'criar', new FormData(formAtendimento));
+            await AtendeLabApi.post('atendimentos', 'criarNovoAtendimento', new FormData(formAtendimento));
 
             AtendeLabApi.showAlert('alerta', 'Atendimento registrado com sucesso.');
 

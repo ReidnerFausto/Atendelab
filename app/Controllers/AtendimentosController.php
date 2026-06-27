@@ -33,7 +33,18 @@ class AtendimentosController
         //Bloqueia o acesso caso o usuário não esteja logado
         exigirAutenticacaoApi();
 
-        $sql = 'SELECT a.id, p.nome AS pessoa_nome, u.nome AS usuario_id, t.nome AS tipo_atendimento, a.data_atendimento, a.hora_atendimento, a.descricao, a.observacao, a.status, a.criado_em, a.atualizado_em 
+        $sql = 'SELECT 
+                    a.id, 
+                    p.nome AS pessoa_nome, 
+                    u.nome AS usuario_nome,  
+                    t.nome AS tipo_nome,     
+                    a.data_atendimento, 
+                    a.hora_atendimento, 
+                    a.descricao, 
+                    a.observacao, 
+                    a.status, 
+                    a.criado_em, 
+                    a.atualizado_em 
                 FROM atendimentos a
                 INNER JOIN pessoas p ON a.pessoa_id = p.id
                 INNER JOIN usuarios u ON a.usuario_id = u.id
@@ -147,7 +158,8 @@ class AtendimentosController
                         usuario_id = :usuario_id,
                         data_atendimento = :data_atendimento,
                         hora_atendimento = :hora_atendimento,
-                        descricao = :descricao,
+                        descricao = :descricao
+                        
 
                     WHERE id = :id';
 

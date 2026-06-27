@@ -5,7 +5,7 @@
 // Importa funções auxiliares de autenticação e sessão
 require_once __DIR__ . "/../Middleware/auth.php";
 
-class TiposAtendimentos
+class TiposAtendimentosController
 {
     private PDO $pdo;
 
@@ -134,6 +134,32 @@ class TiposAtendimentos
             $this->jsonResponse(['mensagem' => 'Tipo de atendimento atualizado com sucesso']);
         } catch (PDOException $e) {
             $this->jsonResponse(['erro' => 'Erro ao atualizar tipo de atendimento.'], 500);
+        }
+    }
+
+    public function inativarTipoAtendimento(): void
+    {
+        // Bloqueia o acesso caso o usuário não esteja logado
+        exigirAutenticacaoApi();
+
+        $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+
+        if (!$id) {
+            $this->jsonResponse(['erro' => 'ID é obrigatório.'], 400);
+        }
+
+        try {
+            $sql = "UPDATE tipos_atendimentos 
+                    SET status = 'inativo' 
+                    WHERE id = :id";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $this->jsonResponse(['mensagem' => 'Tipo inativado com sucesso']);
+        } catch (PDOException $e) {
+            $this->jsonResponse(['erro' => 'Erro ao inativar tipo de atendimento.'], 500);
         }
     }
 

@@ -25,8 +25,6 @@ require __DIR__ . '/../layout/header.php';
                         name="documento" required></div>
                 <div class="col-md-3"><label class="form-label">Telefone</label><input class="form-control"
                         name="telefone"></div>
-                <div class="col-md-6"><label class="form-label">E-mail *</label><input class="form-control" type="email"
-                        name="email" required></div>
                 <div class="col-md-3"><label class="form-label">Curso</label><input class="form-control" name="curso">
                 </div>
                 <div class="col-md-3"><label class="form-label">Período</label><input class="form-control"
@@ -55,7 +53,6 @@ require __DIR__ . '/../layout/header.php';
                 <tr>
                     <th>Nome</th>
                     <th>Documento</th>
-                    <th>E-mail</th>
                     <th>Curso</th>
                     <th>Período</th>
                     <th>Status</th>
@@ -99,7 +96,6 @@ require __DIR__ . '/../layout/header.php';
             tbody.innerHTML = dados.map(p => `<tr>
             <td>${AtendeLabApi.escape(p.nome)}</td>
             <td>${AtendeLabApi.escape(p.documento)}</td>
-            <td>${AtendeLabApi.escape(p.email)}</td>
             <td>${AtendeLabApi.escape(p.curso || '')}</td>
             <td>${AtendeLabApi.escape(p.periodo || '')}</td>
             <td><span class="badge ${p.status === 'ativo' ? 'text-bg-success' : 'text-bg-secondary'}">${AtendeLabApi.escape(p.status)}</span></td>
@@ -128,7 +124,7 @@ require __DIR__ . '/../layout/header.php';
         event.preventDefault();
         const id = document.getElementById('pessoaId').value;
         try {
-            await AtendeLabApi.post('pessoas', id ? 'atualizar' : 'criar', new FormData(formPessoa));
+            await AtendeLabApi.post('pessoas', id ? 'atualizar' : 'cadastrar', new FormData(formPessoa));
             AtendeLabApi.showAlert('alerta', id ? 'Pessoa atualizada com sucesso.' : 'Pessoa cadastrada com sucesso');
             fecharFormulario();
             await carregarPessoas();
@@ -140,7 +136,7 @@ require __DIR__ . '/../layout/header.php';
     async function inativarPessoa(id) {
         if (!confirm('Deseja inativar essa pessoa?')) return;
         try {
-            await AtendeLabApi.post('pessoas', 'inativar', { id });
+            await AtendeLabApi.post('pessoas', 'inativar', { id: id, status: 'inativo' });
             AtendeLabApi.showAlert('alerta', 'Pessoa inativada com sucesso.');
             await carregarPessoas();
         } catch (error) {

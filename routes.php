@@ -3,8 +3,10 @@
 require_once __DIR__ . '/app/Controllers/UsuariosController.php';
 require_once __DIR__ . '/app/Controllers/AtendimentosController.php';
 require_once __DIR__ . '/app/Controllers/PessoasController.php';
-require_once __DIR__ . '/app/Controllers/TiposAtendimentos.php';
+require_once __DIR__ . '/app/Controllers/TiposAtendimentosController.php';
 require_once __DIR__ . '/app/Controllers/AuthController.php';
+require_once __DIR__ . '/app/Controllers/FrontEndController.php';
+require_once __DIR__ . '/app/Controllers/DashboardController.php';
 require_once __DIR__ . '/app/Middleware/auth.php';
 
 // Define o controller e action por query string.
@@ -39,6 +41,29 @@ switch ($controller) {
         }
         break;
 
+    case 'frontend':
+        $frontEndController = new FrontEndController();
+
+        // Escolhe qual método do controller executar
+        switch ($action) {
+            case 'pessoas':
+                $frontEndController->pessoas();
+                break;
+            case 'tipos':
+                $frontEndController->tipos();
+                break;
+            case 'atendimentos':
+                $frontEndController->atendimentos();
+                break;
+            default:
+                // Retorno padrão para action invalido
+                http_response_code(404);
+                echo 'Ação de Autenticação não encontrada.';
+                break;
+        }
+        break;
+
+
     case 'usuarios':
         $usuariosController = new UsuariosController();
 
@@ -71,23 +96,26 @@ switch ($controller) {
         break;
 
     case 'tiposatendimentos':
-        $tiposAtendimentos = new TiposAtendimentos();
+        $tiposAtendimentosController = new TiposAtendimentosController();
 
         switch ($action) {
             case 'criarTipoAtendimento':
-                $tiposAtendimentos->criarTipoAtendimento();
+                $tiposAtendimentosController->criarTipoAtendimento();
                 break;
             case 'listarTipoAtendimento':
-                $tiposAtendimentos->listarTipoAtendimento();
+                $tiposAtendimentosController->listarTipoAtendimento();
                 break;
             case 'buscarAtendimento':
-                $tiposAtendimentos->buscarAtendimento();
+                $tiposAtendimentosController->buscarAtendimento();
                 break;
             case 'atualizarAtendimento':
-                $tiposAtendimentos->atualizarAtendimento();
+                $tiposAtendimentosController->atualizarAtendimento();
+                break;
+            case 'inativarTipoAtendimento':
+                $tiposAtendimentosController->inativarTipoAtendimento();
                 break;
             case 'excluirAtendimento':
-                $tiposAtendimentos->excluirAtendimento();
+                $tiposAtendimentosController->excluirAtendimento();
                 break;
             default:
                 // Retorno padrão para action invalido
@@ -113,8 +141,8 @@ switch ($controller) {
             case 'atualizar':
                 $pessoasController->atualizar();
                 break;
-            case 'alterarStatus':
-                $pessoasController->alterarStatus();
+            case 'inativar':
+                $pessoasController->inativar();
                 break;
             case 'excluir':
                 $pessoasController->excluir();

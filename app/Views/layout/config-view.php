@@ -1,3 +1,3 @@
 <?php
 
-$baseUrl = '/atendelab/public';
+$baseUrl = '/atendelab/public/';

@@ -126,6 +126,7 @@ class PessoasController
         $telefone = trim($_POST['telefone'] ?? '');
         $curso = trim($_POST['curso'] ?? '');
         $periodo = trim($_POST['periodo'] ?? '');
+        $status = $_POST['status'] ?? 'ativo';
 
         if (!$id || $nome === '' || $documento === '') {
             $this->jsonResponse(['erro' => 'ID, nome e documento são obrigatorios.'], 400);
@@ -138,6 +139,7 @@ class PessoasController
                         telefone = :telefone,
                         curso = :curso,
                         periodo = :periodo,
+                        status = :status
                     WHERE id = :id';
 
             $stmt = $this->pdo->prepare($sql);
@@ -146,6 +148,7 @@ class PessoasController
             $stmt->bindValue(':telefone', $telefone);
             $stmt->bindValue(':curso', $curso);
             $stmt->bindValue(':periodo', $periodo);
+            $stmt->bindValue(':status', $status);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
@@ -157,7 +160,7 @@ class PessoasController
 
     }
 
-    public function alterarStatus(): void
+    public function inativar(): void
     {
         //Bloqueia o acesso caso o usuário não esteja logado
         exigirAutenticacaoApi();
