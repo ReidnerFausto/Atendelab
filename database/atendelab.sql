@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 16-Jun-2026 às 18:23
+-- Tempo de geração: 29-Jun-2026 às 21:59
 -- Versão do servidor: 10.4.32-MariaDB
 -- versão do PHP: 8.2.12
 
@@ -46,11 +46,12 @@ CREATE TABLE `atendimentos` (
 --
 
 INSERT INTO `atendimentos` (`id`, `pessoa_id`, `tipo_atendimento`, `usuario_id`, `data_atendimento`, `hora_atendimento`, `descricao`, `observacao`, `status`, `criado_em`, `atualizado_em`) VALUES
-(1, 1, 1, 1, '2026-06-12', '00:00:00', '', '', 'em_andamento', '2026-06-12 18:47:14', '2026-06-16 12:39:47'),
-(3, 1, 1, 1, '2026-06-12', '00:00:00', 'descricao bala', 'eu observo', 'concluido', '2026-06-12 18:48:57', '2026-06-16 16:08:50'),
-(4, 1, 1, 1, '2026-06-14', '14:15:00', 'Nova descricao', 'Nao observo', 'aberto', '2026-06-12 18:49:14', '2026-06-15 16:03:36'),
+(1, 1, 1, 1, '2026-06-12', '00:00:00', '', '', 'aberto', '2026-06-12 18:47:14', '2026-06-27 15:53:20'),
+(3, 1, 1, 1, '2026-06-12', '00:00:00', 'descricao bala', 'eu observo', 'em_andamento', '2026-06-12 18:48:57', '2026-06-27 15:54:45'),
+(4, 1, 1, 1, '2026-06-14', '14:15:00', 'Nova descricao', '', 'concluido', '2026-06-12 18:49:14', '2026-06-27 15:56:34'),
 (7, 1, 1, 1, '2026-06-18', '14:15:00', 'Nova descricao', 'Observacao observada', 'aberto', '2026-06-16 12:43:51', '2026-06-16 13:47:52'),
-(11, 5, 1, 6, '2026-06-12', '09:15:00', 'descricao bala', 'observo de fato', 'aberto', '2026-06-16 13:49:46', '2026-06-16 13:49:46');
+(11, 5, 1, 6, '2026-06-12', '09:15:00', 'descricao bala', 'observo de fato', 'aberto', '2026-06-16 13:49:46', '2026-06-16 13:49:46'),
+(13, 6, 4, 6, '2026-06-30', '17:05:00', 'Auxilia na materia', '', 'aberto', '2026-06-27 16:05:30', '2026-06-27 16:05:30');
 
 -- --------------------------------------------------------
 
@@ -74,10 +75,10 @@ CREATE TABLE `pessoas` (
 --
 
 INSERT INTO `pessoas` (`id`, `nome`, `documento`, `telefone`, `curso`, `periodo`, `status`, `atualizado_em`) VALUES
-(1, 'teste', '12345678911', '47999999998', 'novoTeste', 'vespertino', 'ativo', '2026-06-16 12:32:48'),
-(3, 'teste2', '123456789', '47999999999', 'teste', 'matutino', 'ativo', '2026-06-15 16:02:50'),
+(1, 'Joao Guilherme', '12345678911', '47999999998', 'Matematica', '6°', 'ativo', '2026-06-27 16:01:56'),
 (4, 'Carlos Henrique Souza', '123.123.123-10', '(46)79999-0010', 'Engenharia de Software', '3º', 'ativo', '2026-06-15 16:26:34'),
-(5, 'Ana Beatriz Souza', '123.111.123-10', '(46)79909-0010', 'Engenharia de Sistemas', '9º', 'ativo', '2026-06-15 16:26:34');
+(5, 'Ana Beatriz Souza', '123.111.123-10', '(46)79909-0010', 'Engenharia de Sistemas', '9º', 'ativo', '2026-06-15 16:26:34'),
+(6, 'Matheu Henrique', '12112355422', '47999999998', 'Geografia', '7°', 'ativo', '2026-06-27 16:03:33');
 
 -- --------------------------------------------------------
 
@@ -98,10 +99,9 @@ CREATE TABLE `tipos_atendimentos` (
 --
 
 INSERT INTO `tipos_atendimentos` (`id`, `nome`, `descricao`, `status`, `atualizado_em`) VALUES
-(1, 'novoNome', 'nova descricao de atendimento', 'inativo', '2026-06-15 16:02:50'),
-(3, 'atendimento2', 'atendimento que atende', 'ativo', '2026-06-15 16:02:50'),
+(1, 'Apoio à extensão', 'Orientação relacionadas a projetos de extensão e atividades comunitárias.', 'ativo', '2026-06-27 16:17:47'),
 (4, 'Revisão de avaliação', 'Solicitações de revisão de provas, trabalhos e atividades avaliativas.', 'ativo', '2026-06-15 16:21:51'),
-(5, 'Apoio à extensão', 'Orientação relacionadas a projetos de extensão e atividades comunitárias.', 'ativo', '2026-06-15 16:21:51');
+(6, 'Simulados', 'Cria sumulados de determinada materia.', 'ativo', '2026-06-27 16:18:18');
 
 -- --------------------------------------------------------
 
@@ -126,9 +126,7 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `perfil`, `status`, `criado_em`, `atualizado_em`) VALUES
 (1, 'Administrador', 'admin@atendelab.com', '$2y$10$J9P2kU2BAMZ3TZcuxTsW4e1D/lka8EocYHzvyoOZmCNcWDQz3RuVC', 'admin', 'ativo', '2026-06-02 13:57:58', '2026-06-16 12:38:31'),
-(2, 'userAtualizado', 'userAtualizado@gmail.com', '$2y$10$S.ajWIg6a53hic2LJXwXLOylRA0BvFaLAG.4P6Shc2owCYZ4on/e6', 'atendente', 'ativo', '2026-06-11 13:23:54', '2026-06-15 16:02:50'),
-(6, 'admininastror', 'admininastror@gmail.com', '$2y$10$ZXeep2eoJ9EKbFjzl2Ndzux/LUeZc/wbZlVeQYfzCPz3tPxv4BpIO', 'admin', 'ativo', '2026-06-11 13:44:24', '2026-06-15 16:02:50'),
-(7, 'Matheus', 'Matheus@gmail.com', '$2y$10$tNJtm86BUdxH1ECkNFU2AOCq3MHceI7r0L8vuPYXeys8lWfFJpurG', 'atendente', 'ativo', '2026-06-16 16:09:54', '2026-06-16 16:16:40');
+(6, 'admininastror', 'admininastror@gmail.com', '$2y$10$ZXeep2eoJ9EKbFjzl2Ndzux/LUeZc/wbZlVeQYfzCPz3tPxv4BpIO', 'admin', 'ativo', '2026-06-11 13:44:24', '2026-06-15 16:02:50');
 
 --
 -- Índices para tabelas despejadas
@@ -171,19 +169,19 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de tabela `atendimentos`
 --
 ALTER TABLE `atendimentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `pessoas`
 --
 ALTER TABLE `pessoas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `tipos_atendimentos`
 --
 ALTER TABLE `tipos_atendimentos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`
