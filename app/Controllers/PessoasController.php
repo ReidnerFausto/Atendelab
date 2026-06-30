@@ -79,8 +79,10 @@ class PessoasController
         exigirAutenticacaoApi();
 
         $nome = trim($_POST['nome'] ?? '');
-        $documento = trim($_POST['documento'] ?? '');
-        $telefone = trim($_POST['telefone'] ?? '');
+        // Limpa os caracteres especiais que vem do front end
+        $documento = preg_replace('/\D/', '', trim($_POST['documento'] ?? ''));
+        $telefone = preg_replace('/\D/', '', trim($_POST['telefone'] ?? ''));
+
         $curso = trim($_POST['curso'] ?? '');
         $periodo = trim($_POST['periodo'] ?? '');
         $status = $_POST['status'] ?? 'ativo';
@@ -122,8 +124,10 @@ class PessoasController
         // ID vem no POST para operação de update.
         $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         $nome = trim($_POST['nome'] ?? '');
-        $documento = trim($_POST['documento'] ?? '');
-        $telefone = trim($_POST['telefone'] ?? '');
+        // Limpa os caracteres especiais que vem do front end
+        $documento = preg_replace('/\D/', '', trim($_POST['documento'] ?? ''));
+        $telefone = preg_replace('/\D/', '', trim($_POST['telefone'] ?? ''));
+
         $curso = trim($_POST['curso'] ?? '');
         $periodo = trim($_POST['periodo'] ?? '');
         $status = $_POST['status'] ?? 'ativo';

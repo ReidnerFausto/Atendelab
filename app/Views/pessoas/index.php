@@ -22,9 +22,11 @@ require __DIR__ . '/../layout/header.php';
                 <div class="col-md-6"><label class="form-label">Nome *</label><input class="form-control" name="nome"
                         required></div>
                 <div class="col-md-3"><label class="form-label">Documento *</label><input class="form-control"
-                        name="documento" required></div>
+                        autocomplete="off" maxlength="14" oninput="formatarDocumento(this)" name="documento" required>
+                </div>
                 <div class="col-md-3"><label class="form-label">Telefone</label><input class="form-control"
-                        name="telefone"></div>
+                        name="telefone" maxlength="15" oninput="formatarTelefone(this)" placeholder="(51)95151-5151">
+                </div>
                 <div class="col-md-3"><label class="form-label">Curso</label><input class="form-control" name="curso">
                 </div>
                 <div class="col-md-3"><label class="form-label">Período</label><input class="form-control"
@@ -104,6 +106,41 @@ require __DIR__ . '/../layout/header.php';
         } catch (error) {
             AtendeLabApi.showAlert('alerta', error.message, 'danger');
         }
+    }
+
+    function formatarTelefone(input) {
+        // Remove tudo o que não for número
+        let v = input.value.replace(/\D/g, '');
+
+        // Impede que o usuário digite mais de 11 números base
+        if (v.length > 11) {
+            v = v.substring(0, 11);
+        }
+
+        // Formatação progressiva
+        v = v.replace(/^(\d{2})(\d)/g, '($1) $2'); // Isola o DDD em parênteses e adiciona um espaço
+        v = v.replace(/(\d)(\d{4})$/, '$1-$2');    // Coloca o hífen sempre antes dos últimos 4 dígitos
+
+        // Atualiza o valor do input
+        input.value = v;
+    }
+
+    function formatarDocumento(input) {
+        // Remove tudo o que não for número
+        let v = input.value.replace(/\D/g, '');
+
+        // Impede que o usuário digite mais de 14 números base
+        if (v.length > 14) {
+            v = v.substring(0, 14);
+        }
+
+        // Formatação progressiva
+        v = v.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona o 1º ponto
+        v = v.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona o 2º ponto
+        v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona o traço
+
+        // Atualiza o valor do input
+        input.value = v;
     }
 
     async function editarPessoa(id) {

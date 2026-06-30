@@ -32,7 +32,7 @@ require __DIR__ . '/../layout/header.php';
                 </div>
                 <div class="col-12">
                     <label class="form-label">Descrição</label>
-                    <textarea class="form-control" name="descricao" rows="2"></textarea>
+                    <textarea class="form-control" maxlength="200" name="descricao" rows="2"></textarea>
                 </div>
             </div>
             <div class="d-flex gap-2 mt-3">

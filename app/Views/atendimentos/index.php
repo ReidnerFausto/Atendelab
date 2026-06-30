@@ -36,7 +36,7 @@ require __DIR__ . '/../layout/header.php';
 
                 <div class="col-md-4">
                     <label class="form-label">Data</label>
-                    <input class="form-control" type="date" name="data_atendimento" required>
+                    <input class="form-control" type="date" name="data_atendimento" id="dataAtendimento" required>
                 </div>
 
                 <div class="col-md-4">
@@ -109,7 +109,7 @@ require __DIR__ . '/../layout/header.php';
                     <div>
                         <label class="form-label">Observação final</label>
 
-                        <textarea class="form-control" name="observacao_final" rows="3"
+                        <textarea class="form-control" maxlength="200" name="observacao_final" rows="3"
                             placeholder="Obrigatória ao concluir"></textarea>
                     </div>
                 </div>
@@ -286,6 +286,23 @@ require __DIR__ . '/../layout/header.php';
             await carregarAtendimentos();
         } catch (error) {
             AtendeLabApi.showAlert('alerta', error.message, 'danger');
+        }
+    });
+
+    // Impede datas retroativas
+    document.addEventListener('DOMContentLoaded', () => {
+        const data = document.getElementById('dataAtendimento');
+
+        if (data) {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // datas em js comecam com 0 entao precisa adicionar + 1
+            const dia = String(hoje.getDate()).padStart(2, '0');
+
+            const dataMinima = `${ano}-${mes}-${dia}`;
+
+            // Define o dia de hoje como a data minima
+            data.min = dataMinima;
         }
     });
 
